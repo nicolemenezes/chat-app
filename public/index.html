@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat App</title>
+  <style>
+    #messages p {
+      margin: 8px 0;
+      font-size: 32px;
+      line-height: 1.2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Chatting</h1>
+  <input type="text" id="message" placeholder="Type message" />
+  <button id="sendbutton" type="button">Send</button>
+  <button onclick="createconnection()">create a websocket connection</button>
+
+  <div id="messages"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    let socket = null;
+
+    function createconnection() {
+      if (socket) {
+        console.log('Socket already connected');
+        return;
+      }
+
+      socket = io();
+
+      socket.on('connect', () => {
+        console.log('connected:', socket.id);
+      });
+
+      socket.on('disconnect', () => {
+        console.log('disconnected');
+        socket = null;
+      });
+    }
+
+    const messageInput = document.getElementById('message');
+    const sendbutton = document.getElementById('sendbutton');
+
+    sendbutton.addEventListener('click', () => {
+      const message = messageInput.value.trim();
+      console.log(message);
+
+      if (!socket) {
+        console.error('Socket is not connected. Click "create a websocket connection" first.');
+        return;
+      }
+
+      if (!message) {
+        return;
+      }
+
+      socket.emit('chat message', message);
+      messageInput.value = '';
+    });
+  </script>
+</body>
+</html>
