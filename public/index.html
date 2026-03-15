@@ -1,66 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chat App</title>
-  <style>
-    #messages p {
-      margin: 8px 0;
-      font-size: 32px;
-      line-height: 1.2;
-    }
-  </style>
-</head>
-<body>
-  <h1>Chatting</h1>
-  <input type="text" id="message" placeholder="Type message" />
-  <button id="sendbutton" type="button">Send</button>
-  <button onclick="createconnection()">create a websocket connection</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat APP</title>
+  </head>
+  <body>
+    <h1>Chatting</h1>
 
-  <div id="messages"></div>
+    <input type="text" id="message" placeholder="Enter Message" />
+    <button id="sendBtn">Send</button>
 
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    let socket = null;
+    <div id="messages"></div>
 
-    function createconnection() {
-      if (socket) {
-        console.log('Socket already connected');
-        return;
-      }
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      const sendBtn = document.getElementById("sendBtn");
+      const messageInput = document.getElementById("message");
+      const allMessages = document.getElementById("messages");
 
-      socket = io();
-
-      socket.on('connect', () => {
-        console.log('connected:', socket.id);
+      socket.on("message", (message) => {
+        const p = document.createElement("p");
+        p.innerText = message;
+        allMessages.appendChild(p);
       });
 
-      socket.on('disconnect', () => {
-        console.log('disconnected');
-        socket = null;
+      sendBtn.addEventListener("click", (e) => {
+        const message = messageInput.value;
+        console.log(message);
+        socket.emit("user-message", message);
       });
-    }
-
-    const messageInput = document.getElementById('message');
-    const sendbutton = document.getElementById('sendbutton');
-
-    sendbutton.addEventListener('click', () => {
-      const message = messageInput.value.trim();
-      console.log(message);
-
-      if (!socket) {
-        console.error('Socket is not connected. Click "create a websocket connection" first.');
-        return;
-      }
-
-      if (!message) {
-        return;
-      }
-
-      socket.emit('chat message', message);
-      messageInput.value = '';
-    });
-  </script>
-</body>
+    </script>
+  </body>
 </html>
